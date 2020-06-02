@@ -45,6 +45,46 @@ def _preprocess_data(data):
         The preprocessed data, ready to be used our model for prediction.
 
     """
+    
+    def time_taken(df):
+    """
+    Calculates the time taken from Order placement to delivery
+    """
+    df['Time Taken'] = df['Integer - Pickup - Time'] - df['Integer - Placement - Time']
+    
+    return df
+
+def string_int(df,cols):
+    
+    """
+    Takes a dataframe with time in string format and converts the 
+    column data to integers
+    
+    param df: input dataframe
+    param col: list of column names to be converted
+    return df: returns a dataframe with the converted column data
+    
+    """
+    time_to_int = lambda ss: (ss.hour * 60 + ss.minute) * 60 + ss.second
+   
+    
+    for column_name in cols:
+        df['Integer - '+column_name] = [time_to_int(datetime.strptime(i,'%I:%M:%S %p')) for i in df[column_name]]
+                    
+    df_clean = df.drop(cols,1)
+            
+    return df_clean
+
+def make_dummies(df,column):
+    """
+    Takes a dataframe and a list of columns for which to create dummies.
+    """
+    dummies = pd.get_dummies(df[column],drop_first=True)
+    df.drop(column,1,inplace=True)
+    df = pd.concat([df,dummies],axis=1)
+    
+    return df
+    
     # Convert the json string to a python dictionary object
     feature_vector_dict = json.loads(data)
     # Load the dictionary as a Pandas DataFrame.
